@@ -1,0 +1,14 @@
+---
+title: "Problem Set 3"
+author: "Westley Cook"
+date: "2/18/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+
+```
+
