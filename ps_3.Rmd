@@ -10,7 +10,87 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(reprex)
+library(janitor)
+library(gt)
+
+```
+
+```{r read_in_data, include=FALSE}
+
+xian <- read_csv("./raw-data/xian_data.csv",
+                 skip = 3,
+                 na = "undefined") %>% 
+  clean_names()
+  
+
+# Used glimpse() and summary() to look at the data
 
 
 ```
 
+## Madlibs
+
+```{r mad-lib-1, include=FALSE}
+
+treatment_respondents <- xian %>% 
+  filter(treatment == 1) %>% 
+  count() %>% 
+  pull(n)
+
+```
+
+1. **`r treatment_respondents`** respondents are in the treatment group.
+
+```{r mad-lib-2, include=FALSE}
+
+xian %>% 
+  group_by(treatment) %>% 
+  summarize(govt_overall_avg_by_group = mean(eval_gov_overall))
+
+xian %>% 
+  filter(treatment == 1) %>% 
+  summarize(govt_avg_in_treatment_group = mean(eval_gov_overall))
+
+
+
+```
+
+
+2. Among respondents from the treatment group, the government has an average **X**
+rating.
+
+```{r mad-lib-3, include=FALSE}
+
+most_common_traffic <- xian %>% 
+  count(eval_gov_traffic) %>% 
+  arrange(desc(n)) %>% 
+  slice(1) %>% 
+  pull(eval_gov_traffic)
+
+```
+
+
+3. The most common rating for the government’s handling of traffic is **`r most_common_traffic`**.
+
+```{r mad-lib-4, include=FALSE}
+
+
+
+```
+
+
+4. **X** respondents have given the government a 10 rating overall or on demolitions
+or on traffic.
+
+5. But only **X** gave the government a 10 rating overall and on demolitions and on
+traffic.
+
+The variable ‘news_source’ asks respondents to list which news sources they get
+their news from. Some respondents answered more than one option, so their answer
+lists a number of letters together. A means “Television”, B means “Newspapers”,
+C means “Radio”, etc
+
+6. The number of respondents who get their news from Television is **X**
+
+7. Of the 4 different locations where the respondents were surveyed, the
+following two locations end with “square”: **X,X**
