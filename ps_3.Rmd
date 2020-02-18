@@ -43,20 +43,15 @@ treatment_respondents <- xian %>%
 
 ```{r mad-lib-2, include=FALSE}
 
-xian %>% 
-  group_by(treatment) %>% 
-  summarize(govt_overall_avg_by_group = mean(eval_gov_overall))
 
-xian %>% 
+gov_avg_rating_in_treatment_group <- xian %>% 
   filter(treatment == 1) %>% 
-  summarize(govt_avg_in_treatment_group = mean(eval_gov_overall))
-
-
+  summarize(gov_avg_in_treatment_group = mean(eval_gov_overall, na.rm = TRUE)) %>% 
+  pull(gov_avg_in_treatment_group)
 
 ```
 
-
-2. Among respondents from the treatment group, the government has an average **X**
+2. Among respondents from the treatment group, the government has an average **`r gov_avg_rating_in_treatment_group`**
 rating.
 
 ```{r mad-lib-3, include=FALSE}
@@ -69,28 +64,55 @@ most_common_traffic <- xian %>%
 
 ```
 
-
 3. The most common rating for the government’s handling of traffic is **`r most_common_traffic`**.
 
 ```{r mad-lib-4, include=FALSE}
 
-
+any_10_count <- xian %>% 
+  filter(eval_gov_overall == 10 |
+         eval_gov_demo == 10 |
+         eval_gov_traffic == 10) %>% 
+  count() %>% 
+  pull(n)
 
 ```
 
-
-4. **X** respondents have given the government a 10 rating overall or on demolitions
+4. **`r any_10_count`** respondents have given the government a 10 rating overall or on demolitions
 or on traffic.
 
-5. But only **X** gave the government a 10 rating overall and on demolitions and on
+```{r mad-lib-5, include=FALSE}
+
+all_10s <- xian %>% 
+  filter(eval_gov_overall == 10,
+         eval_gov_demo == 10,
+         eval_gov_traffic == 10) %>% 
+  count() %>% 
+  pull(n)
+
+```
+
+5. But only **`r all_10s`** gave the government a 10 rating overall and on demolitions and on
 traffic.
 
-The variable ‘news_source’ asks respondents to list which news sources they get
-their news from. Some respondents answered more than one option, so their answer
-lists a number of letters together. A means “Television”, B means “Newspapers”,
-C means “Radio”, etc
+```{r mad-lib-6, include=FALSE}
 
-6. The number of respondents who get their news from Television is **X**
+tv_respondents <- xian %>% 
+  filter(str_detect(news_source, "A")) %>% 
+  count() %>% 
+  pull(n)
+
+```
+
+6. The number of respondents who get their news from Television is **`r tv_respondents`**.
+
+```{r mad-lib-7, include=FALSE}
+
+square_locations <- xian %>% 
+  filter(str_detect(location, "square")) %>% 
+  slice(1, 4) %>% 
+  pull(location)
+
+```
 
 7. Of the 4 different locations where the respondents were surveyed, the
-following two locations end with “square”: **X,X**
+following two locations end with “square”: **`r square_locations`**
