@@ -116,3 +116,56 @@ square_locations <- xian %>%
 
 7. Of the 4 different locations where the respondents were surveyed, the
 following two locations end with “square”: **`r square_locations`**
+
+## Data Wrangling
+
+1. 
+
+```{r table-1, echo=FALSE}
+
+xian_subset_untidy <- xian %>% 
+  select(respondent, eval_gov_overall, eval_gov_traffic, eval_gov_demo)
+
+xian_subset_untidy %>% 
+  slice(1:10) %>% 
+  gt() %>% 
+  tab_header(title = "Untidy Data") %>% 
+  tab_spanner(label = "Evaluations of Government Performance",
+              columns = vars(eval_gov_overall, eval_gov_traffic, eval_gov_demo)
+  ) %>% 
+  cols_label(eval_gov_overall = "Overall",
+             eval_gov_traffic = "Traffic",
+             eval_gov_demo = "Demolitions",
+             respondent = "Respondent Number")
+
+```
+
+2.
+
+```{r table-2, echo=FALSE}
+
+xian_subset_untidy %>% 
+  pivot_longer(cols = c(eval_gov_overall, eval_gov_traffic, eval_gov_demo),
+               names_to = "type",
+               values_to = "rating") %>% 
+  filter(respondent <= 10) %>% 
+  mutate(type = recode(type, 
+    eval_gov_overall = "Overall",
+    eval_gov_traffic = "Traffic",
+    eval_gov_demo = "Demo")) %>% 
+  gt() %>% 
+  tab_header(title = "Tidy Data") %>% 
+  cols_label(respondent = "Respondent Number",
+             type = "Type of Evaluation",
+             rating = "Performance Rating")
+
+```
+
+
+
+
+
+
+
+#### Worked With:
+Brian Kim
