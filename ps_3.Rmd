@@ -175,7 +175,9 @@ xian_subset_untidy %>%
 
 ```{r table-potential-outcomes, echo=FALSE}
 
-# Why do I have a warning showing up?
+# Explain why you're leaving the NA in the table (to show that the question
+# wasn't answered, but that we don't know what the potential outcome would have
+# been)
 
 xian %>% 
   select(respondent,
@@ -260,7 +262,19 @@ eval_by_treatment_education %>%
                               "University completed"),
              y = avg_eval,
              color = treatment)) +
-  geom_point()
+  geom_point() +
+  labs(title = "Government Performance Evaluations \n By Treatment Group \n and Education Level",
+       x = "Education",
+       y = "Average Evaluation") +
+  theme_bw() +
+  theme(panel.grid = element_blank(),
+        legend.position = "top",
+        panel.border = element_blank(),
+        axis.line.x.bottom = element_line(),
+        axis.line.y.left = element_line(),
+        axis.text.x = element_text(angle = 45,
+                                   hjust = 1)) +
+  scale_color_discrete(name = "Viewed Sports Video")
 
 # ADD FORMATTING TO REPLICATE MODEL PLOT
 
@@ -293,7 +307,16 @@ olympic_df %>%
                              Gold,
                              .desc = TRUE),
              y = Gold)) +
-  geom_col()
+  geom_col() + 
+  ggtitle("Number of Gold Medals in 2008 Beijing Olympics") +
+  xlab("Country") +
+  ylab("Gold Medals") +
+  theme_bw() +
+  theme(panel.border = element_blank(),
+        panel.grid = element_blank(),
+        axis.line.x.bottom = element_line(),
+        axis.line.y.left = element_line()
+        )
 
 ```
 
