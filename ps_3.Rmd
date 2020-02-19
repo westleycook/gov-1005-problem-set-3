@@ -122,7 +122,7 @@ following two locations end with “square”: **`r square_locations`**
 
 ## Data Wrangling
 
-1. 
+1.a
 
 ```{r table-untidy, echo=FALSE}
 
@@ -148,7 +148,7 @@ xian_subset_untidy %>%
 
 ```
 
-How do I insert a line break here?
+1.b
 
 ```{r table-tidy, echo=FALSE}
 
@@ -196,7 +196,7 @@ xian %>%
               columns = vars(eval_under_control,
                              eval_under_treatment)) %>% 
   tab_footnote(footnote = "Treatment is a 2 minute video about Chinese sports performance",
-               locations = cells_title()) %>% 
+               locations = cells_title("title")) %>% 
   cols_label(respondent = "Respondent",
              treatment = "Treatment",
              control = "Control",
@@ -208,11 +208,70 @@ xian %>%
 
 3.
 
-```{r table-demographics, echo=FALSE}
+```{r demographics-setup, include=FALSE}
 
+load("r-data/demographics.Rdata")
 
+xian_demographics <- xian %>% 
+  inner_join(demographics, by = "respondent")
 
 ```
+
+```{r table-demographics, echo=FALSE}
+
+xian_demographics %>% 
+  filter(treatment == 1) %>% 
+  select(respondent, eval_gov_traffic, age, gender) %>% 
+  arrange(desc(eval_gov_traffic)) %>%
+  slice(1:5) %>% 
+  gt() %>% 
+  tab_header(title = "Highest Evaluators of Government Performance on Traffic:",
+             subtitle = "Among Treated Individuals") %>% 
+  tab_footnote(footnote = "Evaluation on Scale from 1 to 10",
+               location = cells_title("title")) %>% 
+  cols_label(respondent = "Respondent",
+             eval_gov_traffic = "Evaluate Government Performance",
+             age = "Age",
+             gender = "Gender")
+
+```
+
+4.
+
+```{r scatterplot-setup, include=FALSE}
+
+eval_by_treatment_education <- xian_demographics %>% 
+  mutate(treatment = as.factor(treatment)) %>%
+# because it was giving me a warning  
+  na.omit() %>% 
+  group_by(education, treatment) %>%
+  summarize(avg_eval = mean(eval_gov_overall))
+
+```
+
+```{r replicate-scatterplot, echo=FALSE}
+
+eval_by_treatment_education %>% 
+  ggplot(aes(x =  fct_relevel(education,
+                              "Primary",
+                              "Incomplete secondary",
+                              "Complete secondary",
+                              "Some university",
+                              "University completed"),
+             y = avg_eval,
+             color = treatment)) +
+  geom_point()
+
+# ADD FORMATTING TO REPLICATE MODEL PLOT
+
+```
+
+5.
+
+```{r }
+
+```
+
 
 
 
