@@ -46,7 +46,8 @@ treatment_respondents <- xian %>%
 
 gov_avg_rating_in_treatment_group <- xian %>% 
   filter(treatment == 1) %>% 
-  summarize(gov_avg_in_treatment_group = mean(eval_gov_overall, na.rm = TRUE)) %>% 
+  summarize(gov_avg_in_treatment_group = mean(eval_gov_overall, 
+                                              na.rm = TRUE)) %>% 
   pull(gov_avg_in_treatment_group)
 
 ```
@@ -97,7 +98,8 @@ traffic.
 ```{r mad-lib-6, include=FALSE}
 
 tv_respondents <- xian %>% 
-  filter(str_detect(news_source, "A")) %>% 
+  filter(str_detect(news_source, 
+                    "A")) %>% 
   count() %>% 
   pull(n)
 
@@ -108,7 +110,8 @@ tv_respondents <- xian %>%
 ```{r mad-lib-7, include=FALSE}
 
 square_locations <- xian %>% 
-  filter(str_detect(location, "square")) %>% 
+  filter(str_detect(location, 
+                    "square")) %>% 
   slice(1, 4) %>% 
   pull(location)
 
@@ -121,17 +124,22 @@ following two locations end with “square”: **`r square_locations`**
 
 1. 
 
-```{r table-1, echo=FALSE}
+```{r table-untidy, echo=FALSE}
 
 xian_subset_untidy <- xian %>% 
-  select(respondent, eval_gov_overall, eval_gov_traffic, eval_gov_demo)
+  select(respondent, 
+         eval_gov_overall, 
+         eval_gov_traffic, 
+         eval_gov_demo)
 
 xian_subset_untidy %>% 
   slice(1:10) %>% 
   gt() %>% 
   tab_header(title = "Untidy Data") %>% 
   tab_spanner(label = "Evaluations of Government Performance",
-              columns = vars(eval_gov_overall, eval_gov_traffic, eval_gov_demo)
+              columns = vars(eval_gov_overall, 
+                             eval_gov_traffic, 
+                             eval_gov_demo)
   ) %>% 
   cols_label(eval_gov_overall = "Overall",
              eval_gov_traffic = "Traffic",
@@ -140,19 +148,21 @@ xian_subset_untidy %>%
 
 ```
 
-2.
+How do I insert a line break here?
 
-```{r table-2, echo=FALSE}
+```{r table-tidy, echo=FALSE}
 
 xian_subset_untidy %>% 
-  pivot_longer(cols = c(eval_gov_overall, eval_gov_traffic, eval_gov_demo),
+  pivot_longer(cols = c(eval_gov_overall, 
+                        eval_gov_traffic,
+                        eval_gov_demo),
                names_to = "type",
                values_to = "rating") %>% 
   filter(respondent <= 10) %>% 
   mutate(type = recode(type, 
-    eval_gov_overall = "Overall",
-    eval_gov_traffic = "Traffic",
-    eval_gov_demo = "Demo")) %>% 
+                       eval_gov_overall = "Overall",
+                       eval_gov_traffic = "Traffic",
+                       eval_gov_demo = "Demo")) %>% 
   gt() %>% 
   tab_header(title = "Tidy Data") %>% 
   cols_label(respondent = "Respondent Number",
@@ -161,9 +171,48 @@ xian_subset_untidy %>%
 
 ```
 
+2. 
+
+```{r table-potential-outcomes, echo=FALSE}
+
+# Why do I have a warning showing up?
+
+xian %>% 
+  select(respondent,
+         treatment,
+         control,
+         eval_gov_overall) %>% 
+  mutate(eval_under_treatment = ifelse(treatment == 1,
+                                       eval_gov_overall,
+                                       "?")) %>% 
+  rename(eval_under_control = eval_gov_overall) %>% 
+  mutate(eval_under_control = ifelse(treatment == 0,
+                                     eval_under_control,
+                                     "?")) %>% 
+  slice(1:10) %>% 
+  gt() %>% 
+  tab_header(title = "Potential Outcomes") %>% 
+  tab_spanner(label = "Potential Outcomes",
+              columns = vars(eval_under_control,
+                             eval_under_treatment)) %>% 
+  tab_footnote(footnote = "Treatment is a 2 minute video about Chinese sports performance",
+               locations = cells_title()) %>% 
+  cols_label(respondent = "Respondent",
+             treatment = "Treatment",
+             control = "Control",
+             eval_under_control = "Under Control",
+             eval_under_treatment = "Under Treatment") %>% 
+  cols_align(align = "center")
+
+```
+
+3.
+
+```{r table-demographics, echo=FALSE}
 
 
 
+```
 
 
 
