@@ -122,7 +122,7 @@ following two locations end with “square”: **`r square_locations`**
 
 ## Data Wrangling
 
-1.a
+**1.a**
 
 ```{r table-untidy, echo=FALSE}
 
@@ -148,7 +148,7 @@ xian_subset_untidy %>%
 
 ```
 
-1.b
+**1.b**
 
 ```{r table-tidy, echo=FALSE}
 
@@ -171,7 +171,7 @@ xian_subset_untidy %>%
 
 ```
 
-2. 
+**2.** 
 
 ```{r table-potential-outcomes, echo=FALSE}
 
@@ -208,7 +208,7 @@ xian %>%
 
 ```
 
-3.
+**3.**
 
 ```{r demographics-setup, include=FALSE}
 
@@ -238,7 +238,7 @@ xian_demographics %>%
 
 ```
 
-4.
+**4.**
 
 ```{r scatterplot-setup, include=FALSE}
 
@@ -280,7 +280,7 @@ eval_by_treatment_education %>%
 
 ```
 
-5.
+**5.**
 
 ```{r gold-medal-setup, include=FALSE}
 
@@ -323,5 +323,5 @@ olympic_df %>%
 
 
 
-#### Worked With:
+##### Worked With:
 Brian Kim
