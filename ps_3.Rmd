@@ -197,21 +197,45 @@ following two locations end with “square”: **`r square_locations`**.
 
 ```{r table-untidy, echo=FALSE}
 
+# This r chunk first creates a new subset of the xian data with the columns
+# requested by the assignment, then uses that subset to produce a neat (but
+# untidy) table.
+
+# Creating a subset of xian data, selecting the columns I want in the order in
+# which I want them to appear in my table.
+
 xian_subset_untidy <- xian %>% 
   select(respondent, 
          eval_gov_overall, 
          eval_gov_traffic, 
          eval_gov_demo)
 
+# Now making the table itself.
+
 xian_subset_untidy %>% 
+  
+# Slicing the first ten rows because the assignment asks for the first ten
+# respondents (and in this dataframe, one respondent is on each row).
+  
   slice(1:10) %>% 
+  
+# Putting the table in a neat format
+  
   gt() %>% 
+  
+# Adding header
+  
   tab_header(title = "Untidy Data") %>% 
+  
+# Creating a spanner column label for overall, traffic, and demolitions columns.
+  
   tab_spanner(label = "Evaluations of Government Performance",
               columns = vars(eval_gov_overall, 
                              eval_gov_traffic, 
-                             eval_gov_demo)
-  ) %>% 
+                             eval_gov_demo)) %>%
+  
+# Changing the column labels to make them pretty.
+  
   cols_label(eval_gov_overall = "Overall",
              eval_gov_traffic = "Traffic",
              eval_gov_demo = "Demolitions",
@@ -223,19 +247,47 @@ xian_subset_untidy %>%
 
 ```{r table-tidy, echo=FALSE}
 
+# This r chunk takes the untidy subset from part 1.a and uses pivot_longer() to
+# make it tidy before using gt() and a few other modifying commands to grab the
+# first 10 respondents (NOT the first 10 rows anymore) and make the table
+# pretty.
+
 xian_subset_untidy %>% 
+  
+# Taking the three separate evaluation columns and making from them two new
+# columns: the names of the old columns will fall under one column ("type") and
+# the values in them will fall under another ("rating").
+  
   pivot_longer(cols = c(eval_gov_overall, 
                         eval_gov_traffic,
                         eval_gov_demo),
                names_to = "type",
                values_to = "rating") %>% 
+  
+# To get the first ten respondents, filtering this time by respondent less than
+# or equal to 10; can't just slice() the first ten rows this time, because each
+# respondent takes up three rows.
+  
   filter(respondent <= 10) %>% 
+  
+# Changing the values in the "type" column to a prettier-to-display version of
+# themselves so they'll show up nicely in my table.
+  
   mutate(type = recode(type, 
                        eval_gov_overall = "Overall",
                        eval_gov_traffic = "Traffic",
                        eval_gov_demo = "Demo")) %>% 
+  
+# Making the table look nice  
+  
   gt() %>% 
+  
+# Adding title
+  
   tab_header(title = "Tidy Data") %>% 
+  
+# Changing column labels
+  
   cols_label(respondent = "Respondent Number",
              type = "Type of Evaluation",
              rating = "Performance Rating")
@@ -246,35 +298,82 @@ xian_subset_untidy %>%
 
 ```{r table-potential-outcomes, echo=FALSE}
 
-# Explain why you're leaving the NA in the table (to show that the question
-# wasn't answered, but that we don't know what the potential outcome would have
-# been)
+# This r chunk creates a new potential outcomes table from the xian data.
+
+# Selecting from xian the columns I'll need for the table in the order in which
+# I want them to appear.
 
 xian %>% 
   select(respondent,
          treatment,
          control,
          eval_gov_overall) %>% 
+  
+# Creating new column (eval_under_treatment) which will copy its values from
+# eval_gov_overall in rows where treatment is 1, and insert "?" for its values
+# in rows where treatment is NOT 1. Doing this before mutating the existing
+# eval_gov_overall column for two reasons: 1) I don't want to accidentally lose
+# any values, 2) I want this column on the far right side of the table.
+  
   mutate(eval_under_treatment = ifelse(treatment == 1,
                                        eval_gov_overall,
                                        "?")) %>% 
+  
+# Renaming the eval_gov_overall in preparation to modify its values to only
+# include those from the control group respondents.
+  
   rename(eval_under_control = eval_gov_overall) %>% 
+  
+# Mutating the eval_under_control column in a similar way as I did with the
+# eval_under_treatment column, such that when treatment is 0 it keeps the values
+# already there, but if treatment is NOT 0 it replaces those values with "?".
+
+# Note that in both mutated columns, NA values will still show up as they are;
+# this might look odd on the table, but I think it's an honest way of displaying
+# the data. Leaving the NA values at least seems better than the two
+# alternatives I thought of: replacing NA with "?" (which would leave the reader
+# confused about why outcomes under treatment and control were BOTH unknown and
+# might look like a mistake), or cutting that row out of the table (which would
+# leave the attentive reader confused about why respondent 4 was missing, and
+# might also seem like a mistake).
+  
   mutate(eval_under_control = ifelse(treatment == 0,
                                      eval_under_control,
                                      "?")) %>% 
+  
+# Taking the first ten rows of the dataframe (which, here, is the first ten
+# respondents) and putting them into a nice-looking table.
+  
   slice(1:10) %>% 
   gt() %>% 
+  
+# Adding title  
+  
   tab_header(title = "Potential Outcomes") %>% 
+  
+# Adding spanner label for columns eval_under_control and eval_under_treatment  
+  
   tab_spanner(label = "Potential Outcomes",
               columns = vars(eval_under_control,
                              eval_under_treatment)) %>% 
-  tab_footnote(footnote = "Treatment is a 2 minute video about Chinese sports performance",
+  
+# Adding footnote as shown in the table I'm replicating; had to specify "title"
+# within cells_title() to get a warning message to disappear.
+  
+  tab_footnote(footnote = "Treatment is a 2 minute video about Chinese sports 
+                           performance",
                locations = cells_title("title")) %>% 
+  
+# Giving the columns pretty labels  
+  
   cols_label(respondent = "Respondent",
              treatment = "Treatment",
              control = "Control",
              eval_under_control = "Under Control",
              eval_under_treatment = "Under Treatment") %>% 
+  
+# Center-aligning the values in each column  
+  
   cols_align(align = "center")
 
 ```
@@ -282,6 +381,13 @@ xian %>%
 **3.**
 
 ```{r demographics-setup, include=FALSE}
+
+# This r chunk loads the demographics data (downloaded from canvas and placed in
+# r-data/, a subdirectory of this project) and joins that data to the xian data
+# by matching the "respondent" values from each dataframe.
+
+# It is in its own chunk so I can use include=FALSE to make sure it won't show
+# up in the knitted html document.
 
 load("r-data/demographics.Rdata")
 
@@ -292,16 +398,45 @@ xian_demographics <- xian %>%
 
 ```{r table-demographics, echo=FALSE}
 
+# This r chunk creates a nice table to show demographic information for the
+# treated individuals who gave the highest evaluations of the government's
+# performance on traffic.
+
+# Filtering the newly-joined xian_demographics dataframe for only the treated
+# population.
+
 xian_demographics %>% 
-  filter(treatment == 1) %>% 
+  filter(treatment == 1) %>%
+  
+# Selecting the variables I want in the order in which I want them to appear in
+# the table; mimicking the layout of table I'm replicating.
+  
   select(respondent, eval_gov_traffic, age, gender) %>% 
+  
+# Sorting the data with the highest evaluations at the top and slicing the first
+# five rows, again mimicking the layout of the table I'm replicating.
+  
   arrange(desc(eval_gov_traffic)) %>%
   slice(1:5) %>% 
+  
+# Making a nice table  
+  
   gt() %>% 
+  
+# Adding title and subtitle; text copied from table I'm replicating.
+  
   tab_header(title = "Highest Evaluators of Government Performance on Traffic:",
              subtitle = "Among Treated Individuals") %>% 
+  
+# Adding footnote; text copied from table I'm replicating. Specified location as
+# "title" within cells_title() to make a warning message disappear.
+  
   tab_footnote(footnote = "Evaluation on Scale from 1 to 10",
                location = cells_title("title")) %>% 
+  
+# Labelling the columns with pretty names to complete the display; text again
+# copied from the table I'm replicating.
+  
   cols_label(respondent = "Respondent",
              eval_gov_traffic = "Evaluate Government Performance",
              age = "Age",
