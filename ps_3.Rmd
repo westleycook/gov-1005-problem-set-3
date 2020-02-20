@@ -448,16 +448,39 @@ xian_demographics %>%
 
 ```{r scatterplot-setup, include=FALSE}
 
+# This r chunk prepares the dataframe to be plotted (plotting itself happens in
+# the next r chunk). It's in its own r chunk so I can use include=FALSE to keep
+# it out of the finished html document.
+
+# Taking the xian_demographics dataframe and changing the treatment variable to
+# a factor instead of a numeric (which is necessary to get the color to show
+# properly on the plot when I map treatment onto color).
+
 eval_by_treatment_education <- xian_demographics %>% 
   mutate(treatment = as.factor(treatment)) %>%
-# because it was giving me a warning  
+  
+# Omitting NA values because it was giving me a warning about implicit NA in the
+# education column
+  
   na.omit() %>% 
+  
+# Grouping by education and treatment, then taking the mean of eval_gov_overall
+# and assigning it to a new variable (avg_eval).
+  
   group_by(education, treatment) %>%
   summarize(avg_eval = mean(eval_gov_overall))
 
 ```
 
 ```{r replicate-scatterplot, echo=FALSE}
+
+# This r chunk creates a scatterplot using the newly-created
+# eval_by_treatment_education dataframe.
+
+# Plotting education on the x axis (reordering the factors to replicate the
+# ordering of the model plot, which is good because it puts level of education
+# from least to greatest) and avg_eval on the y axis, with treatment mapped to
+# color.
 
 eval_by_treatment_education %>% 
   ggplot(aes(x =  fct_relevel(education,
@@ -468,11 +491,34 @@ eval_by_treatment_education %>%
                               "University completed"),
              y = avg_eval,
              color = treatment)) +
+  
+# Making it a scatterplot  
+  
   geom_point() +
+  
+# Giving the plot a title. The text for the plot title is long, and thus
+# unfortunately goes over the 80-character-per-line style guide limit. I used \n
+# to insert both of the line breaks necessary to match the formatting of the
+# model plot, because the formatting got wonky if I used actual line breaks in
+# the .Rmd file. I wasn't sure how to replicate the plot formatting exactly
+# without having this one small style guide violation.
+  
   labs(title = "Government Performance Evaluations \n By Treatment Group \n and Education Level",
+ 
+# Labeling the x axis and y axis, copying the label text from the model plot.
+ 
        x = "Education",
        y = "Average Evaluation") +
+  
+# Getting rid of the gray/tan background
+  
   theme_bw() +
+  
+# Making other formatting adjustments: getting rid of the background grid,
+# moving the legend to the top, getting rid of the full border around the plot
+# and replacing it with just the left and bottom axes, rotating the text on the
+# x axis to match the format of the model plot.
+  
   theme(panel.grid = element_blank(),
         legend.position = "top",
         panel.border = element_blank(),
@@ -480,9 +526,10 @@ eval_by_treatment_education %>%
         axis.line.y.left = element_line(),
         axis.text.x = element_text(angle = 45,
                                    hjust = 1)) +
+  
+# Giving the legend a proper label.  
+  
   scale_color_discrete(name = "Viewed Sports Video")
-
-# ADD FORMATTING TO REPLICATE MODEL PLOT
 
 ```
 
