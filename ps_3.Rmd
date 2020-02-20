@@ -77,7 +77,8 @@ treatment_respondents <- xian %>%
 gov_avg_rating_in_treatment_group <- xian %>% 
   filter(treatment == 1) %>% 
   summarize(gov_avg_in_treatment_group = mean(eval_gov_overall, 
-                                              na.rm = TRUE)) %>% 
+                                              na.rm = TRUE)
+            ) %>% 
   pull(gov_avg_in_treatment_group)
 
 ```
@@ -161,7 +162,8 @@ demolitions and on traffic.
 
 tv_respondents <- xian %>% 
   filter(str_detect(news_source, 
-                    "A")) %>% 
+                    "A")
+         ) %>% 
   count() %>% 
   pull(n)
 
@@ -182,7 +184,8 @@ tv_respondents <- xian %>%
 
 square_locations <- xian %>% 
   filter(str_detect(location, 
-                    "square")) %>% 
+                    "square")
+         ) %>% 
   slice(1, 4) %>% 
   pull(location)
 
@@ -232,7 +235,8 @@ xian_subset_untidy %>%
   tab_spanner(label = "Evaluations of Government Performance",
               columns = vars(eval_gov_overall, 
                              eval_gov_traffic, 
-                             eval_gov_demo)) %>%
+                             eval_gov_demo)
+              ) %>%
   
 # Changing the column labels to make them pretty.
   
@@ -276,7 +280,8 @@ xian_subset_untidy %>%
   mutate(type = recode(type, 
                        eval_gov_overall = "Overall",
                        eval_gov_traffic = "Traffic",
-                       eval_gov_demo = "Demo")) %>% 
+                       eval_gov_demo = "Demo")
+         ) %>% 
   
 # Making the table look nice  
   
@@ -317,7 +322,8 @@ xian %>%
   
   mutate(eval_under_treatment = ifelse(treatment == 1,
                                        eval_gov_overall,
-                                       "?")) %>% 
+                                       "?")
+         ) %>% 
   
 # Renaming the eval_gov_overall in preparation to modify its values to only
 # include those from the control group respondents.
@@ -339,7 +345,8 @@ xian %>%
   
   mutate(eval_under_control = ifelse(treatment == 0,
                                      eval_under_control,
-                                     "?")) %>% 
+                                     "?")
+         ) %>% 
   
 # Taking the first ten rows of the dataframe (which, here, is the first ten
 # respondents) and putting them into a nice-looking table.
@@ -355,14 +362,16 @@ xian %>%
   
   tab_spanner(label = "Potential Outcomes",
               columns = vars(eval_under_control,
-                             eval_under_treatment)) %>% 
+                             eval_under_treatment)
+              ) %>% 
   
 # Adding footnote as shown in the table I'm replicating; had to specify "title"
 # within cells_title() to get a warning message to disappear.
   
   tab_footnote(footnote = "Treatment is a 2 minute video about Chinese sports 
                            performance",
-               locations = cells_title("title")) %>% 
+               locations = cells_title("title")
+               ) %>% 
   
 # Giving the columns pretty labels  
   
@@ -490,7 +499,8 @@ eval_by_treatment_education %>%
                               "Some university",
                               "University completed"),
              y = avg_eval,
-             color = treatment)) +
+             color = treatment)
+         ) +
   
 # Making it a scatterplot  
   
@@ -525,7 +535,8 @@ eval_by_treatment_education %>%
         axis.line.x.bottom = element_line(),
         axis.line.y.left = element_line(),
         axis.text.x = element_text(angle = 45,
-                                   hjust = 1)) +
+                                   hjust = 1)
+        ) +
   
 # Giving the legend a proper label.  
   
@@ -537,14 +548,35 @@ eval_by_treatment_education %>%
 
 ```{r gold-medal-setup, include=FALSE}
 
+# This r chunk scrapes data from wikipedia to use in the olympic medal table.
+# It's in a separate chunk from the plot so I can hide it using include=FALSE.
+
+# Loading the rvest package to use for data scraping.
+
 library(rvest)
+
+# Reading the html into an object (olympics_html)
 
 olympics_html <- read_html("https://en.wikipedia.org/wiki/2008_Summer_Olympics")
 
+# Scraping the necessary table from the html document. 
+
 olympic_table <- olympics_html %>% 
+  
+# Grabbing the "table" nodes to see 
+  
   html_nodes(css = "table") %>% 
+  
+# After seeing the output of different tables in the html doc, identified number
+# 8 as the one I wanted and selected it
+  
   .[8] %>% 
+  
+# Importing the table itself as a table into R
+  
   html_table()
+
+# Turning the table into a dataframe
 
 olympic_df <- olympic_table %>% 
   as.data.frame()
@@ -553,18 +585,44 @@ olympic_df <- olympic_table %>%
 
 ```{r replicate-gold-medal-chart, echo=FALSE}
 
+# This r chunk plots the olympic medal dataframe from above, replicating as
+# nearly as possible the model plot.
+
+# Slicing the first ten rows of olympic_df to get rid of the row with totals
+# (which isn't necessary for the plot).
+
 olympic_df %>% 
   slice(1:10) %>% 
+  
+# Plotting number of gold medals on the y axis and country on the x axis,
+# ordering the x axis factors by quantity of gold medals earned (in descending
+# order, with the country with the most medals on the left).
     
   ggplot(aes(x = fct_reorder(Nation,
                              Gold,
                              .desc = TRUE),
              y = Gold)) +
+  
+# Making it a bar plot with bars separated  
+  
   geom_col() + 
+  
+# Adding title for plot and labels for x and y axis, using different functions
+# than those used above because I wanted to test new functions to make sure I
+# could use them properly.
+  
   ggtitle("Number of Gold Medals in 2008 Beijing Olympics") +
   xlab("Country") +
   ylab("Gold Medals") +
+  
+# Getting rid of the gray/tan background  
+  
   theme_bw() +
+
+# Making finishing-touch formatting adjustments: removing the border from the
+# plot and replacing it with just the x and y axis lines, and removing the panel
+# grid.
+  
   theme(panel.border = element_blank(),
         panel.grid = element_blank(),
         axis.line.x.bottom = element_line(),
