@@ -8,6 +8,10 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
+# Loading libraries that I assume will come in handy: tidyverse for its dplyr
+# and ggplot2 packages, reprex in case I need to use it to ask for help online,
+# janitor to clean my data, and gt because I'll have to produce a table.
+
 library(tidyverse)
 library(reprex)
 library(janitor)
@@ -17,13 +21,25 @@ library(gt)
 
 ```{r read_in_data, include=FALSE}
 
-xian <- read_csv("./raw-data/xian_data.csv",
-                 skip = 3,
-                 na = "undefined") %>% 
-  clean_names()
-  
+# This r chunk reads in the xian data and cleans it.
 
-# Used glimpse() and summary() to look at the data
+xian <- read_csv("./raw-data/xian_data.csv",
+                 
+# Skipping three rows to get the column names to the top of the data frame
+                 
+                 skip = 3,
+
+# Setting all the "undefined" values to NA
+
+                 na = "undefined") %>% 
+  
+# Cleaning column names to make them easier to use
+  
+  clean_names()
+
+# As I worked through the specifics of the commands and arguments I'd use to
+# read in the data, I used glimpse() and summary() commands to  to look at the
+# data (e.g. so I'd know how many rows to skip).
 
 
 ```
@@ -31,6 +47,12 @@ xian <- read_csv("./raw-data/xian_data.csv",
 ## Madlibs
 
 ```{r mad-lib-1, include=FALSE}
+
+# This r chunk assigns an object to use in mad lib 1.
+
+# Filtering xian data for only those rows where treatment is 1 (meaning those
+# respondents who received treatment), then counting the number of rows and
+# pulling the value of n and assigning it to the object treatment_respondents
 
 treatment_respondents <- xian %>% 
   filter(treatment == 1) %>% 
@@ -43,6 +65,14 @@ treatment_respondents <- xian %>%
 
 ```{r mad-lib-2, include=FALSE}
 
+# This r chunk assigns an object to use in mad lib 2.
+
+# As above, filtering xian for those rows where treatment is 1;, then creating a
+# column (gov_avg_in_treatment_group) to house the average of overall ratings
+# for members of the treatment group, removing all the NA values because they're
+# incompatible with the mean() operation. Pulling the result and assigning it to
+# the object gov_avg_rating_in_treatment_group (which is probably too long a
+# name, but it's descriptive).
 
 gov_avg_rating_in_treatment_group <- xian %>% 
   filter(treatment == 1) %>% 
@@ -52,10 +82,20 @@ gov_avg_rating_in_treatment_group <- xian %>%
 
 ```
 
-2. Among respondents from the treatment group, the government has an average **`r gov_avg_rating_in_treatment_group`**
-rating.
+2. Among respondents from the treatment group, the government has an average
+**`r gov_avg_rating_in_treatment_group`** rating.
 
 ```{r mad-lib-3, include=FALSE}
+
+# This r chunk assigns an object to use in mad lib 3.
+
+# To find the most common rating for traffic, I count() the eval_gov_traffic
+# column (which gives me two columns as a result, one for the values that make
+# an appearance in the eval_gov_traffic column and one called n which shows how
+# many times they appear). I then arrange the dataframe in descending order (so
+# the most commonly-given rating is in the first row) and slice() that row. I
+# pull() the value in the eval_gov_traffic column and assign it to
+# most_common_traffic.
 
 most_common_traffic <- xian %>% 
   count(eval_gov_traffic) %>% 
@@ -65,11 +105,19 @@ most_common_traffic <- xian %>%
 
 ```
 
-3. The most common rating for the government’s handling of traffic is **`r most_common_traffic`**.
+3. The most common rating for the government’s handling of traffic is 
+**`r most_common_traffic`**.
 
 ```{r mad-lib-4, include=FALSE}
 
-any_10_count <- xian %>% 
+# This r chunk assigns an object to use in mad lib 4.
+
+# I use filter() to leave only the rows in the dataframe where either overall,
+# demolitions, or traffic rating is 10. I then count() those rows and pull() the
+# n column to assign the total count (number of times a row in the dataframe
+# contains 10 in any of the three rating categories) to any_ten_count.
+
+any_ten_count <- xian %>% 
   filter(eval_gov_overall == 10 |
          eval_gov_demo == 10 |
          eval_gov_traffic == 10) %>% 
@@ -78,12 +126,18 @@ any_10_count <- xian %>%
 
 ```
 
-4. **`r any_10_count`** respondents have given the government a 10 rating overall or on demolitions
-or on traffic.
+4. **`r any_ten_count`** respondents have given the government a 10 rating
+overall or on demolitions or on traffic.
 
 ```{r mad-lib-5, include=FALSE}
 
-all_10s <- xian %>% 
+# This r chunk assigns an object to use in mad lib 5.
+
+# I modify the code from mad lib 4 just slightly, replacing "or" bars (|) with
+# commas in the filter function so it will leave me only with those rows in the
+# dataframe in which ALL ratings were 10.
+
+all_tens <- xian %>% 
   filter(eval_gov_overall == 10,
          eval_gov_demo == 10,
          eval_gov_traffic == 10) %>% 
@@ -92,10 +146,18 @@ all_10s <- xian %>%
 
 ```
 
-5. But only **`r all_10s`** gave the government a 10 rating overall and on demolitions and on
-traffic.
+5. But only **`r all_tens`** gave the government a 10 rating overall and on
+demolitions and on traffic.
 
 ```{r mad-lib-6, include=FALSE}
+
+# This r chunk assigns an object to use in mad lib 6.
+
+# Similar process to that in mad lib 5, but instead of filtering for just the
+# value "A" (which would leave me with those respondents who ONLY get their news
+# from Television and exclude those who get news from Television and other
+# sources) I filter() for any value in the news_source column which contains the
+# letter "A" using str_detect().
 
 tv_respondents <- xian %>% 
   filter(str_detect(news_source, 
@@ -105,9 +167,18 @@ tv_respondents <- xian %>%
 
 ```
 
-6. The number of respondents who get their news from Television is **`r tv_respondents`**.
+6. The number of respondents who get their news from Television is 
+**`r tv_respondents`**.
 
 ```{r mad-lib-7, include=FALSE}
+
+# This r chunk assigns an object to use in mad lib 7.
+
+# As in mad lib 6, I use str_detect() to filter() for values in the location
+# column which contain "square". After running that command and looking at the
+# resulting table, I see that rows 1 and 4 are the first rows in the dataframe
+# to contain their respective values, so I slice() those rows and pull() the
+# values, assigning them to square_locations.
 
 square_locations <- xian %>% 
   filter(str_detect(location, 
@@ -118,7 +189,7 @@ square_locations <- xian %>%
 ```
 
 7. Of the 4 different locations where the respondents were surveyed, the
-following two locations end with “square”: **`r square_locations`**
+following two locations end with “square”: **`r square_locations`**.
 
 ## Data Wrangling
 
@@ -319,9 +390,6 @@ olympic_df %>%
         )
 
 ```
-
-
-
 
 ##### Worked With:
 Brian Kim
